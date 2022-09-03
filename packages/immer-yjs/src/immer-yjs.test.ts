@@ -94,7 +94,7 @@ test('bind usage demo', () => {
         .push([{ id: '1005', type: 'test' }])
 
     // change reflected in snapshot
-    expect(binder.get()[id1].batters.batter.at(-1)).toStrictEqual({ id: '1005', type: 'test' })
+    expect(binder.get()[id1].batters.batter[binder.get()[id1].batters.batter.length -1]).toStrictEqual({ id: '1005', type: 'test' })
 
     // now the length + 1
     expect(binder.get()[id1].batters.batter.length).toBe(expectLength + 1)
