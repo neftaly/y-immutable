@@ -2,25 +2,15 @@
 
 # STATUS: Alpha WIP - not ready for production use
 
-This library provides a simple way to support peer-to-peer and multi-user shared objects and text in React, Vue, etc. It combines [Yjs](https://github.com/yjs/yjs), a CRDT library with a mutation-based API, with [immer](https://github.com/immerjs/immer), a library with immutable data manipulation using plain JS objects. It is based on [sep2/immer-yjs](https://github.com/sep2/immer-yjs).
+This library provides peer-to-peer and multi-user shared objects and text for React, Vue, etc. It stores CRDT type information and supports a JSON API.
 
-# Installation
-
-`npm install immer-yjs-typed immer yjs`
+immer-yjs-types combines [Yjs](https://github.com/yjs/yjs), a CRDT library with a mutation-based API, with [immer](https://github.com/immerjs/immer), a library with immutable data manipulation using plain JS objects. It is based on [sep2/immer-yjs](https://github.com/sep2/immer-yjs).
 
 # Documentation
 
-1. `import { bind } from 'immer-yjs'`.
-2. Create a binder: `const binder = bind(doc.getMap("state"))`.
-3. Add subscription to the snapshot: `binder.subscribe(listener)`.
-   1. Mutations in `y.js` data types will trigger snapshot subscriptions.
-   2. Calling `update(...)` (similar to `produce(...)` in `immer`) will update their corresponding `y.js` types and also trigger snapshot subscriptions.
-4. Call `binder.get()` to get the latest snapshot.
-5. (Optionally) call `binder.unbind()` to release the observer.
-
 ## Typing
 
-The immer objects encode Yjs data into `[type, value]` tuples.
+The immer objects encode Yjs data into `[type, value]` tuples. This is done so that different CRDT types with different behavior can be encoded into regular JSON.
 
 Supported types are:
 
@@ -75,6 +65,18 @@ const json = ['YArray', [
 
 const ydata = deserialize(json)
 ```
+
+## Yjs/immer binder
+
+The binder wraps a Yjs doc in an immer wrapper, which can then be subscribed to.
+
+1. `import { bind } from 'immer-yjs'`.
+2. Create a binder: `const binder = bind(doc.getMap("state"))`.
+3. Add subscription to the snapshot: `binder.subscribe(listener)`.
+   1. Mutations in `y.js` data types will trigger snapshot subscriptions.
+   2. Calling `update(...)` (similar to `produce(...)` in `immer`) will update their corresponding `y.js` types and also trigger snapshot subscriptions.
+4. Call `binder.get()` to get the latest snapshot.
+5. (Optionally) call `binder.unbind()` to release the observer.
 
 ## React integration
 
