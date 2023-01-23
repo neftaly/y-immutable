@@ -22,9 +22,7 @@ const deserialize = ([type, value]) => {
         Object.entries(value).map(([k, v]) => [k, deserialize(v)])
       )
     case 'YArray':
-      const arr = new Y.Array()
-      arr.insert(0, value.map(deserialize))
-      return arr
+      return Y.Array.from(value.map(deserialize))
     default:
       return undefined
   }
