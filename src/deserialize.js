@@ -9,23 +9,22 @@ const deserialize = ([type, value]) => {
     case 'boolean':
     case 'null':
       return value
-    case 'object':
-      return fromPairs(
-        Object.entries(value).map(([k, v]) => [k, deserialize(v)])
-      )
-    case 'array':
-      return value.map(deserialize)
     case 'YText':
       return new Y.Text(value)
-    case 'YMap':
-      return new Y.Map(
-        Object.entries(value).map(([k, v]) => [k, deserialize(v)])
-      )
+    case 'array':
+      return value.map(deserialize)
     case 'YArray':
       return Y.Array.from(value.map(deserialize))
+    case 'object':
+      return fromPairs(deserializeChildren(value))
+    case 'YMap':
+      return new Y.Map(deserializeChildren(value))
     default:
       return undefined
   }
 }
+
+const deserializeChildren = (children) =>
+  Object.entries(children).map(([k, v]) => [k, deserialize(v)])
 
 export default deserialize
