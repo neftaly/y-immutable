@@ -1,8 +1,7 @@
 import { enablePatches, produceWithPatches } from 'immer'
 import * as Y from 'yjs'
-import * as R from 'ramda' // TODO: Replace with lodash etc (too slow for prod)
 import deserialize from './deserialize'
-import { get } from 'lodash'
+import { get, initial, last } from 'lodash'
 
 enablePatches()
 
@@ -24,26 +23,18 @@ const applyPatch = (root, { path, op, value = [] }, snapshot) => {
     }
     return
   } else {
-    /*
-    This is a bit of a mess
-    When pathLengthIsEven, we're splitting up the [type,value], looking up type, then re-building [type,value]
-    */
-    const pathWithoutTypes = R.compose(
-      R.reject(R.isNil),
-      R.map(R.prop(1)), // Discard "type"
-      R.splitEvery(2) // Split into [ type, key ] pairs
-    )(path)
-    const parentPath = R.init(pathWithoutTypes)
-    const property = R.last(pathWithoutTypes)
-
+    // When pathLengthIsEven, we're splitting up the [type,value], looking up type, then re-building [type,value]
+    // TODO: This should be re-written
+    const yPath = path.filter((v, k) => k % 2) // Remove types from the Immer path
+    const parentPath = initial(yPath)
+    const property = last(yPath)
     const pathLengthIsEven = path.length % 2 === 0 // Path is either [1,property,1] or [1,property]
     const type = pathLengthIsEven
       ? value[0]
-      : get(snapshot, [...R.init(path), 0])
+      : get(snapshot, [...initial(path), 0])
     const v = pathLengthIsEven ? value[1] : value
 
     const target = parentPath.reduce((t, key) => t.get(key), root)
-
     if (target instanceof Y.Map) {
       switch (op) {
         case 'add':

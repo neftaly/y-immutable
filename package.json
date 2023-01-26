@@ -13,7 +13,6 @@
   "dependencies": {
     "immer": "^9.0.15",
     "lodash": "^4.17.21",
-    "ramda": "^0.28.0",
     "yjs": "^13.5.41"
   },
   "devDependencies": {

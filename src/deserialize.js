@@ -1,5 +1,5 @@
 import * as Y from 'yjs'
-import fromPairs from 'lodash/fromPairs.js'
+import { fromPairs } from 'lodash'
 
 // Convert typed JSON to Yjs object and/or POJO
 const deserialize = ([type, value]) => {
