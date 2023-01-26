@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "format": "prettier . --write",
-    "lint": "standard .",
+    "lint": "standardx .",
     "test": "vitest",
     "coverage": "vitest run --coverage"
   },
@@ -19,8 +19,13 @@
     "@vitest/coverage-c8": "^0.23.4",
     "prettier": "^2.7.1",
     "prettier-config-standard": "^5.0.0",
-    "standard": "^17.0.0",
+    "standardx": "^7.0.0",
     "vitest": "^0.23.4"
+  },
+  "eslintConfig": {
+    "rules": {
+      "no-void": "off"
+    }
   },
   "prettier": "prettier-config-standard"
 }

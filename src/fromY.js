@@ -4,7 +4,7 @@ import * as Y from 'yjs'
 
 const applyYEvents = (snapshot, events) =>
   produce(snapshot, (immerRoot) =>
-    events.forEach((event) => applyYEvent(immerRoot, event))
+    events.forEach((event) => void applyYEvent(immerRoot, event))
   )
 
 const applyYEvent = (immerRoot, event) => {
@@ -13,7 +13,7 @@ const applyYEvent = (immerRoot, event) => {
   // const type = immerProxyToUpdate.type[0] // TODO: Handle type changes
   if (event instanceof Y.YMapEvent) {
     event.changes.keys.forEach((change, key) => {
-      const type = immerProxyToUpdate[0]
+      // const type = immerProxyToUpdate[0]
       switch (change.action) {
         case 'add':
         case 'update':

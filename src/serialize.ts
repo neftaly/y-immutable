@@ -14,7 +14,7 @@ const getType = (object: YOrJSON): TypedJSONType => {
   return typeof object as TypedJSONType
 }
 
-// Convert Yjs object and/or POJO to typed JSON
+// Convert Yjs objects and POJOs to typed JSON
 const serialize = (object: YOrJSON): TypedJSON => {
   const type = getType(object)
   const value = (() => {
