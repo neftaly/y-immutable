@@ -2,92 +2,20 @@
 
 # STATUS: Alpha WIP - not ready for production use
 
-This library provides peer-to-peer and multi-user shared objects and text for React, Vue, etc. It stores CRDT type information and supports a JSON API.
+This is a wrapper for Yjs that aims to provide a consistent immutable API.
 
 immer-yjs-types combines [Yjs](https://github.com/yjs/yjs), a CRDT library with a mutation-based API, with [immer](https://github.com/immerjs/immer), a library with immutable data manipulation using plain JS objects. It is based on [sep2/immer-yjs](https://github.com/sep2/immer-yjs).
 
-# Documentation
-
-## Typing
-
-The immer objects encode Yjs data into `[type, value]` tuples. This is done so that different CRDT types with different behavior can be encoded into regular JSON.
-
-Supported types are:
-
-- [`YMap`](https://docs.yjs.dev/api/shared-types/y.map)
-- [`YArray`](https://docs.yjs.dev/api/shared-types/y.array)
-- [`YText`](https://docs.yjs.dev/api/shared-types/y.text)
-- <strike>[`XmlFragment`](https://docs.yjs.dev/api/shared-types/y.xmlfragment)</strike>
-- <strike>[`XmlElement`](https://docs.yjs.dev/api/shared-types/y.xmlelement)</strike>
-- <strike>[`XmlText`](https://docs.yjs.dev/api/shared-types/y.xmltext)</strike>
-- `object`
-- `array`
-- `string`
-- `number`
-- `boolean`
-- `null`
-
-For example, a Yjs object can be serialized into the equivalent JSON:
-
-```js
-import { serialize } from 'immer-yjs-typed`
-
-// Note that Yjs doesn't actually support this syntax
-const ydata = new Y.Array([
-  new Y.Map({
-    title: 'write tests',
-    checked: true
-  }),
-  new Y.Map({
-    title: 'dogfood app',
-    checked: false
-  })
-])
-
-const json = serialize(ydata)
-```
-
-The same JSON can also be serialized back to a Yjs object:
-
-```js
-import { deserialize } from 'immer-yjs-typed`
-
-const json = ['YArray', [
-  ['YMap', {
-    title: ['string', 'write tests'],
-    checked: ['boolean', true]
-  }],
-  ['YMap', {
-    title: ['string', 'dogfood app'],
-    checked: ['boolean', false]
-  }]
-]]
-
-const ydata = deserialize(json)
-```
-
-## Yjs/immer binder
-
-The binder wraps a Yjs doc in an immer wrapper, which can then be subscribed to.
-
-1. `import { bind } from 'immer-yjs'`.
-2. Create a binder: `const binder = bind(doc.getMap("state"))`.
-3. Add subscription to the snapshot: `binder.subscribe(listener)`.
-   1. Mutations in `y.js` data types will trigger snapshot subscriptions.
-   2. Calling `update(...)` (similar to `produce(...)` in `immer`) will update their corresponding `y.js` types and also trigger snapshot subscriptions.
-4. Call `binder.get()` to get the latest snapshot.
-5. (Optionally) call `binder.unbind()` to release the observer.
-
-## React integration
+## React example
 
 For Zustand, see [the recipes doc](https://docs.pmnd.rs/zustand/recipes/recipes#sick-of-reducers-and-changing-nested-state?-use-immer!).
 
 For vanilla React, the most efficent way is to use [useSyncExternalStoreWithSelector](https://github.com/reactwg/react-18/discussions/86):
 
 ```js
-import { bind } from 'immer-yjs-typed'
+import bind from 'immer-yjs-typed'
 
-// Setup store
+// Setup Y store
 const doc = new Y.Doc()
 const ymap = doc.getMap('appstate.v1')
 
@@ -96,12 +24,13 @@ const binder = bind(ymap);
 
 // Initialize state
 binder.update((state) => (
+  // immer-yjs-typed data uses the format [ type, value ]
   ['YMap': {
     count: ['number', 0]
   }]
 ));
 
-// define a helper hook
+// Define an Immer helper hook
 function useImmerYjs<Selection>(selector: (state: State) => Selection) {
   const selection = useSyncExternalStoreWithSelector(
     binder.subscribe,
@@ -112,10 +41,9 @@ function useImmerYjs<Selection>(selector: (state: State) => Selection) {
   return [selection, binder.update]
 }
 
-
 // use in component
 function Component() {
-  const [count, update] = useImmerYjs((s) => s[1].count[1])
+  const [count, update] = useImmerYjs((s) => s[1].count[1]) // Don't forget the [1] after each prop
 
   const handleClick = () => {
     update((s) => {
@@ -131,3 +59,72 @@ function Component() {
 // when done
 binder.unbind()
 ```
+
+# Documentation
+
+## Typing
+
+Yjs data is encoded in Immer as `[type, value]` tuples. This is done so that Yjs CRDTs can be represented as plain JS objects (POJOs).
+
+```js
+import { deserialize } from 'immer-yjs-typed'
+
+const json = ['YArray', [
+  ['YMap', {
+    title: ['string', 'write tests'],
+    checked: ['boolean', true]
+  }],
+  ['YMap', {
+    title: ['string', 'dogfood app'],
+    checked: ['boolean', false]
+  }]
+]]
+
+const ydata = deserialize(json)
+```
+
+The equivalent Yjs object can be converted back to a POJO:
+
+```js
+import { serialize } from 'immer-yjs-typed'
+
+const yArray = Y.Array.from
+const yMap = data => new Y.Map(Object.entries(data))
+
+const ydata = yArray([
+  yMap({
+    title: 'write tests',
+    checked: true
+  }),
+  yMap({
+    title: 'dogfood app',
+    checked: false
+  })
+])
+
+const json = serialize(ydata)
+```
+
+Supported types are:
+
+- [`YMap`](https://docs.yjs.dev/api/shared-types/y.map)
+- [`YArray`](https://docs.yjs.dev/api/shared-types/y.array)
+- [`YText`](https://docs.yjs.dev/api/shared-types/y.text)
+- `object`
+- `array`
+- `string`
+- `number`
+- `boolean`
+- `null`
+
+## Yjs/immer binder
+
+The binder wraps a Yjs doc in an immer wrapper, which can then be subscribed to.
+
+1. `import { bind } from 'immer-yjs'`.
+2. Create a binder: `const binder = bind(doc.getMap("state"))`.
+3. Add subscription to the snapshot: `binder.subscribe(listener)`.
+   1. Mutations in `y.js` data types will trigger snapshot subscriptions.
+   2. Calling `update(...)` (similar to `produce(...)` in `immer`) will update their corresponding `y.js` types and also trigger snapshot subscriptions.
+4. Call `binder.get()` to get the latest snapshot.
+5. (Optionally) call `binder.unbind()` to release the observer.
