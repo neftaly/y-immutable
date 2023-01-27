@@ -2,21 +2,30 @@ import { enablePatches, produceWithPatches } from 'immer'
 import * as Y from 'yjs'
 import deserialize from './deserialize'
 import { get, initial, last } from 'lodash'
+import { getType } from './serialize'
 
 enablePatches()
 
-const applyPatch = (root, { path, op, value = [] }, snapshot) => {
+const updateY = (root, { path, op, value = [] }, snapshot) => {
   if (!path.length) {
     const [type, actualValue] = value
+    const oldType = getType(root)
     if (op !== 'replace') throw new Error('Not implemented')
-    if (root instanceof Y.Map && type === 'YMap') {
-      root.clear()
-      Object.entries(actualValue).forEach(
-        ([k, v]) => void root.set(k, deserialize(v))
-      )
-    } else if (root instanceof Y.Array && Array.isArray(value)) {
-      // root.delete(0, root.length)
-      // root.push(value.map(deserialize))
+    if (type === oldType) {
+      switch (type) {
+        case 'YMap':
+          root.clear()
+          Object.entries(actualValue).forEach(
+            ([k, v]) => void root.set(k, deserialize(v))
+          )
+          break
+        // case 'YArray':
+        // root.delete(0, root.length)
+        // root.push(value.map(deserialize))
+        // break
+        default:
+          throw new Error('Not implemented')
+      }
     } else {
       throw new Error('Not implemented')
     }
@@ -55,6 +64,11 @@ const applyPatch = (root, { path, op, value = [] }, snapshot) => {
       throw new Error('Not implemented')
     }
   }
+}
+
+const applyPatch = (root, { path, op, value = [] }, snapshot) => {
+  // TODO: make paths like [..., ..., type, value, type] look like [..., ..., type, value]
+  updateY(root, { path, op, value }, snapshot)
 }
 
 const applyUpdate = (source, snapshot, fn) => {
