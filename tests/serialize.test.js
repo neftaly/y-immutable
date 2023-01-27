@@ -18,7 +18,7 @@ test('getType', () => {
   assert.equal(getType(false), 'boolean')
 })
 
-test.todo('serialize XmlFragment/XmlElement/XmlText') // https://github.com/probability-nz/immer-yjs-typed/issues/2
+test.todo('serialize XmlFragment/XmlElement/XmlText') // https://github.com/probability-nz/y-immutable/issues/2
 test('serialize', () => {
   const expect = generateTestJson()
   const testYMap = generateTestYData()

@@ -17,7 +17,7 @@ test('bind usage demo', () => {
   const doc = new Y.Doc()
   const map = doc.getMap('map')
 
-  // Connect immer-yjs-typed
+  // Connect y-immutable
   const binder = bind(map)
 
   // Set initial data

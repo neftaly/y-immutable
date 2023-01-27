@@ -1,37 +1,35 @@
-# immer-yjs-typed [![npm](https://img.shields.io/npm/v/immer-yjs-typed.svg)](https://www.npmjs.com/package/immer-yjs-typed)
+# y-immutable [![npm](https://img.shields.io/npm/v/y-immutable.svg)](https://www.npmjs.com/package/y-immutable)
 
 # STATUS: Alpha WIP - not ready for production use
 
 This is a wrapper for Yjs that aims to provide a consistent immutable API.
 
-immer-yjs-types combines [Yjs](https://github.com/yjs/yjs), a CRDT library with a mutation-based API, with [immer](https://github.com/immerjs/immer), a library with immutable data manipulation using plain JS objects. It is based on [sep2/immer-yjs](https://github.com/sep2/immer-yjs).
+y-immutable combines [Yjs](https://github.com/yjs/yjs), a CRDT library with a mutation-based API, with [immer](https://github.com/immerjs/immer), a library for immutable data manipulation using plain JS objects. It is a fork of [sep2/immer-yjs](https://github.com/sep2/immer-yjs).
 
 ## React example
-
-For Zustand, see [the recipes doc](https://docs.pmnd.rs/zustand/recipes/recipes#sick-of-reducers-and-changing-nested-state?-use-immer!).
 
 For vanilla React, the most efficent way is to use [useSyncExternalStoreWithSelector](https://github.com/reactwg/react-18/discussions/86):
 
 ```js
-import bind from 'immer-yjs-typed'
+import bind from 'y-immutable'
 
 // Setup Y store
 const doc = new Y.Doc()
 const ymap = doc.getMap('appstate.v1')
 
-// Attach immer-yjs-typed
+// Attach y-immutable
 const binder = bind(ymap);
 
 // Initialize state
 binder.update((state) => (
-  // immer-yjs-typed data uses the format [ type, value ]
+  // y-immutable data uses the format [ type, value ]
   ['YMap': {
     count: ['number', 0]
   }]
 ));
 
 // Define an Immer helper hook
-function useImmerYjs<Selection>(selector: (state: State) => Selection) {
+function useYImmutable<Selection>(selector: (state: State) => Selection) {
   const selection = useSyncExternalStoreWithSelector(
     binder.subscribe,
     binder.get,
@@ -43,7 +41,7 @@ function useImmerYjs<Selection>(selector: (state: State) => Selection) {
 
 // use in component
 function Component() {
-  const [count, update] = useImmerYjs((s) => s[1].count[1]) // Don't forget the [1] after each prop
+  const [count, update] = useYImmutable((s) => s[1].count[1]) // Don't forget the [1] after each prop!
 
   const handleClick = () => {
     update((s) => {
@@ -60,6 +58,8 @@ function Component() {
 binder.unbind()
 ```
 
+For Zustand, see [the recipes doc](https://docs.pmnd.rs/zustand/recipes/recipes#sick-of-reducers-and-changing-nested-state?-use-immer!).
+
 # Documentation
 
 ## Typing
@@ -67,7 +67,7 @@ binder.unbind()
 Yjs data is encoded in Immer as `[type, value]` tuples. This is done so that Yjs CRDTs can be represented as plain JS objects (POJOs).
 
 ```js
-import { deserialize } from 'immer-yjs-typed'
+import { deserialize } from 'y-immutable'
 
 const json = ['YArray', [
   ['YMap', {
@@ -86,7 +86,7 @@ const ydata = deserialize(json)
 The equivalent Yjs object can be converted back to a POJO:
 
 ```js
-import { serialize } from 'immer-yjs-typed'
+import { serialize } from 'y-immutable'
 
 const yArray = Y.Array.from
 const yMap = data => new Y.Map(Object.entries(data))
@@ -121,7 +121,7 @@ Supported types are:
 
 The binder wraps a Yjs doc in an immer wrapper, which can then be subscribed to.
 
-1. `import { bind } from 'immer-yjs'`.
+1. `import bind from 'y-immutable'`.
 2. Create a binder: `const binder = bind(doc.getMap("state"))`.
 3. Add subscription to the snapshot: `binder.subscribe(listener)`.
    1. Mutations in `y.js` data types will trigger snapshot subscriptions.

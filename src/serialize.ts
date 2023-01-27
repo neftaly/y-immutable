@@ -36,7 +36,7 @@ const serialize = (object: YOrJSON): TypedJSON => {
       type === 'YXmlElement' ||
       type === 'YXmlText'
     ) {
-      throw new Error('Not implemented yet') // https://github.com/probability-nz/immer-yjs-typed/issues/2
+      throw new Error('Not implemented yet') // https://github.com/probability-nz/y-immutable/issues/2
     } else {
       return typeof (object as any)?.toJSON === 'function'
         ? (object as any).toJSON()

@@ -5,7 +5,7 @@ import * as Y from 'yjs'
 import { isPlainObject } from 'lodash'
 import serialize from '../src/serialize'
 
-test.todo('deserialize XmlFragment/XmlElement/XmlText') // https://github.com/probability-nz/immer-yjs-typed/issues/2
+test.todo('deserialize XmlFragment/XmlElement/XmlText') // https://github.com/probability-nz/y-immutable/issues/2
 test('deserialize', () => {
   const testJson = generateTestJson()
   const result = deserialize(testJson)
